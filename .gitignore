@@ -1,0 +1,11 @@
+# Arduino CLI generated build output
+firmware/EnvironmentMonitor/build/
+
+# OpenSCAD temporary/recovery files
+*.scad#
+*.tmp
+
+# Operating-system metadata
+.DS_Store
+Thumbs.db
+desktop.ini
