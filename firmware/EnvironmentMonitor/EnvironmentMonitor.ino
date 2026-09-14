@@ -29,12 +29,14 @@ int32_t tFine;
 
 const uint8_t HISTORY_SIZE = 60;
 int16_t temp1h[HISTORY_SIZE], pressure1h[HISTORY_SIZE];
+int16_t temp8h[HISTORY_SIZE], pressure8h[HISTORY_SIZE];
 int16_t temp24h[HISTORY_SIZE], pressure24h[HISTORY_SIZE];
-uint8_t count1h = 0, count24h = 0;
-uint8_t samples1h = 0, samples24h = 0;
+uint8_t count1h = 0, count8h = 0, count24h = 0;
+uint8_t samples1h = 0, samples8h = 0, samples24h = 0;
 int32_t tempSum1h = 0, pressureSum1h = 0;
+int32_t tempSum8h = 0, pressureSum8h = 0;
 int32_t tempSum24h = 0, pressureSum24h = 0;
-// Display modes: 0=current value, 1=one-hour chart, 2=24-hour chart.
+// Display modes: 0=current, 1=one hour, 2=eight hours, 3=24 hours.
 uint8_t tempMode = 0, pressureMode = 0;
 uint8_t displayRotation = 0;
 unsigned long lastReadingMs = 0;
@@ -166,11 +168,17 @@ void collectHistory(float temperature, float pressure) {
   int16_t t = (int16_t)(temperature * 10.0F);
   int16_t p = (int16_t)(pressure * 10.0F);
   tempSum1h += t; pressureSum1h += p; samples1h++;
+  tempSum8h += t; pressureSum8h += p; samples8h++;
   tempSum24h += t; pressureSum24h += p; samples24h++;
   if (samples1h == 6) {
     pushPair(temp1h, pressure1h, count1h,
              tempSum1h / samples1h, pressureSum1h / samples1h);
     tempSum1h = pressureSum1h = 0; samples1h = 0;
+  }
+  if (samples8h == 48) {
+    pushPair(temp8h, pressure8h, count8h,
+             tempSum8h / samples8h, pressureSum8h / samples8h);
+    tempSum8h = pressureSum8h = 0; samples8h = 0;
   }
   if (samples24h == 144) {
     pushPair(temp24h, pressure24h, count24h,
@@ -181,7 +189,8 @@ void collectHistory(float temperature, float pressure) {
 
 void drawPanel(uint8_t panel, const __FlashStringHelper *title, float current,
                const __FlashStringHelper *unit, int16_t *history, uint16_t color,
-               int16_t minimumSpan, uint8_t count, bool show24h) {
+               int16_t minimumSpan, uint8_t count,
+               const __FlashStringHelper *rangeLabel) {
   int16_t halfHeight = tft.height() / 2;
   int16_t top = panel * halfHeight;
   int16_t chartTop = top + 42;
@@ -232,8 +241,8 @@ void drawPanel(uint8_t panel, const __FlashStringHelper *title, float current,
   tft.setTextSize(1); tft.setTextColor(WHITE);
   tft.setCursor(chartLeft + 2, chartTop + 2); tft.print(high / 10.0F, 1);
   tft.setCursor(chartLeft + 2, chartBottom - 9); tft.print(low / 10.0F, 1);
-  tft.setCursor(chartRight - 56, chartBottom - 9);
-  tft.print(show24h ? F("last 24h") : F("last 1h"));
+  tft.setCursor(chartRight - 45, chartBottom - 9);
+  tft.print(rangeLabel);
 }
 
 void drawCurrentPanel(uint8_t panel, const __FlashStringHelper *title,
@@ -267,15 +276,19 @@ void drawDashboard() {
     drawCurrentPanel(0, F("TEMPERATURE"), currentTemp, F("C"), YELLOW, 6);
   else
     drawPanel(0, F("TEMPERATURE"), currentTemp, F("C"),
-              tempMode == 2 ? temp24h : temp1h, YELLOW, 20,
-              tempMode == 2 ? count24h : count1h, tempMode == 2);
+              tempMode == 1 ? temp1h : (tempMode == 2 ? temp8h : temp24h),
+              YELLOW, 20,
+              tempMode == 1 ? count1h : (tempMode == 2 ? count8h : count24h),
+              tempMode == 1 ? F("1 HOUR") : (tempMode == 2 ? F("8 HOUR") : F("24 HOUR")));
 
   if (pressureMode == 0)
     drawCurrentPanel(1, F("PRESSURE"), currentPressure, F("hPa"), CYAN, 5);
   else
     drawPanel(1, F("PRESSURE"), currentPressure, F("hPa"),
-              pressureMode == 2 ? pressure24h : pressure1h, CYAN, 50,
-              pressureMode == 2 ? count24h : count1h, pressureMode == 2);
+              pressureMode == 1 ? pressure1h : (pressureMode == 2 ? pressure8h : pressure24h),
+              CYAN, 50,
+              pressureMode == 1 ? count1h : (pressureMode == 2 ? count8h : count24h),
+              pressureMode == 1 ? F("1 HOUR") : (pressureMode == 2 ? F("8 HOUR") : F("24 HOUR")));
 
   int16_t centerX = tft.width() / 2;
   int16_t centerY = tft.height() / 2;
@@ -286,7 +299,7 @@ void drawDashboard() {
 
 void showStartupPage() {
   tft.fillScreen(BLACK);
-  tft.drawRoundRect(8, 12, 224, 296, 10, DKGREY);
+  tft.drawRect(8, 12, 224, 296, DKGREY);
   tft.setTextColor(YELLOW); tft.setTextSize(2);
   tft.setCursor(18, 72); tft.print(F("ENVIRONMENTAL"));
   tft.setCursor(70, 100); tft.print(F("MONITOR"));
@@ -342,6 +355,8 @@ void setup() {
   }
   pushPair(temp1h, pressure1h, count1h,
            currentTemp * 10.0F, currentPressure * 10.0F);
+  pushPair(temp8h, pressure8h, count8h,
+           currentTemp * 10.0F, currentPressure * 10.0F);
   pushPair(temp24h, pressure24h, count24h,
            currentTemp * 10.0F, currentPressure * 10.0F);
   lastReadingMs = millis();
@@ -359,8 +374,8 @@ void loop() {
       displayRotation = (displayRotation + 1) % 4;
       tft.setRotation(displayRotation);
       tft.fillScreen(BLACK);
-    } else if (touchY < centerY) tempMode = (tempMode + 1) % 3;
-    else pressureMode = (pressureMode + 1) % 3;
+    } else if (touchY < centerY) tempMode = (tempMode + 1) % 4;
+    else pressureMode = (pressureMode + 1) % 4;
     drawDashboard();
   }
   touchWasDown = touchDown;
@@ -371,6 +386,8 @@ void loop() {
       sensorFound = beginBMP280();
       if (sensorFound && readBMP280(currentTemp, currentPressure)) {
         pushPair(temp1h, pressure1h, count1h,
+                 currentTemp * 10.0F, currentPressure * 10.0F);
+        pushPair(temp8h, pressure8h, count8h,
                  currentTemp * 10.0F, currentPressure * 10.0F);
         pushPair(temp24h, pressure24h, count24h,
                  currentTemp * 10.0F, currentPressure * 10.0F);

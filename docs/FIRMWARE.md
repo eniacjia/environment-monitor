@@ -34,8 +34,8 @@ Change `COM13` if the Uno appears on another port.
   temperature/pressure calibration coefficients, and configures normal mode.
 - `readBMP280()` reads and compensates raw temperature and pressure values.
 - Software I2C uses open-drain-style pin switching on `D11/D13`.
-- `collectHistory()` creates one-minute and 24-minute averages from ten-second
-  measurements.
+- `collectHistory()` creates one-minute, eight-minute, and 24-minute averages
+  from ten-second measurements.
 - `drawPanel()` renders dynamically scaled history charts.
 - `drawCurrentPanel()` renders centred, overprinted bold-style current values.
 - `readTouch()` maps the measured resistive panel calibration for all four
@@ -43,10 +43,10 @@ Change `COM13` if the Uno appears on another port.
 
 ## RAM strategy
 
-The Uno has only 2 KB of SRAM. Four arrays of 60 signed 16-bit values retain
-temperature and pressure data for the one-hour and 24-hour views. Values are
-stored in tenths of their displayed units. This avoids storing thousands of
-individual ten-second samples.
+The Uno has only 2 KB of SRAM. Six arrays of 60 signed 16-bit values retain
+temperature and pressure data for the one-hour, eight-hour, and 24-hour views.
+Values are stored in tenths of their displayed units. This avoids storing
+thousands of individual ten-second samples.
 
 ## Persistence status
 

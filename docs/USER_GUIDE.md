@@ -17,11 +17,12 @@ dashboard.
 The upper section shows **TEMPERATURE** in yellow. The lower section shows
 **PRESSURE** in cyan. Measurements update every ten seconds.
 
-Tap a section to cycle it independently through three modes:
+Tap a section to cycle it independently through four modes:
 
 1. Large, centred current value
 2. Rolling one-hour chart
-3. Rolling 24-hour chart
+3. Rolling eight-hour chart
+4. Rolling 24-hour chart
 
 The unit appears on the label line in the same colour as the reading.
 
@@ -35,13 +36,14 @@ orientation. Touch coordinates and panel layouts adjust to each orientation.
 
 - Sensor acquisition interval: 10 seconds
 - One-hour chart: 60 one-minute averages
+- Eight-hour chart: 60 eight-minute averages
 - 24-hour chart: 60 24-minute averages
 - Vertical axis: automatically padded and rescaled
 - New readings enter from the right side
 
-It takes one hour to fill the one-hour chart and 24 hours to fill the 24-hour
-chart. History starts again after every restart because persistence has not yet
-been enabled.
+The graph labels are `1 HOUR`, `8 HOUR`, and `24 HOUR`. It takes the full
+selected period to fill each chart. History starts again after every restart
+because persistence has not yet been enabled.
 
 ## Sensor error screen
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-13
+
+- Added independent eight-hour temperature and pressure charts.
+- Expanded each panel to four modes: current, 1 hour, 8 hours, and 24 hours.
+- Simplified graph labels to `1 HOUR`, `8 HOUR`, and `24 HOUR`.
+- Removed the experimental 3D enclosure models from the project.
+
 ## 2026-09-11
 
 - Detected ILI9341 TFT controller (`0x9341`).
@@ -9,4 +16,3 @@
 - Added automatic chart scaling and ten-second refresh.
 - Added four-orientation touch rotation control.
 - Added branded ten-second startup page.
-- Added parametric clip-on enclosure and printable STL files.

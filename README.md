@@ -3,13 +3,11 @@
 A compact environmental monitor built with an Arduino Uno, a 2.4-inch
 MCUFRIEND TFT touchscreen shield, and a BME280 sensor. The device displays
 temperature and atmospheric pressure as large live readings or as rolling
-one-hour and 24-hour charts.
+one-hour, eight-hour, and 24-hour charts.
 
 > Local climate at a glance
 
 Built by **DJIA using Codex**. Project build date: **September 11, 2026**.
-
-![Enclosure preview](enclosure/assembly_preview.png)
 
 ## Features
 
@@ -18,12 +16,12 @@ Built by **DJIA using Codex**. Project build date: **September 11, 2026**.
 - Independent display mode for each measurement:
   - large current value
   - one-hour chart
+  - eight-hour chart
   - 24-hour chart
 - Automatic vertical chart scaling
 - Touch the centre target to rotate the screen 90 degrees clockwise
 - Portrait and landscape layouts
 - Ten-second branded startup page
-- Clip-on, two-piece 3D-printable enclosure
 
 Humidity is intentionally not read or displayed.
 
@@ -37,9 +35,6 @@ Humidity is intentionally not read or displayed.
 | `docs/USER_GUIDE.md` | Operating instructions |
 | `docs/FIRMWARE.md` | Firmware design and build instructions |
 | `docs/TROUBLESHOOTING.md` | Diagnostic guidance |
-| `enclosure/uno_24_tft_clip_case.scad` | Parametric enclosure source |
-| `enclosure/uno_24_tft_base.stl` | Printable base |
-| `enclosure/uno_24_tft_lid.stl` | Printable clip-on lid |
 
 ## Quick start
 
@@ -59,5 +54,3 @@ See [hardware/HARDWARE.md](hardware/HARDWARE.md) before connecting power.
   for software I2C.
 - The TFT backlight is wired directly to power on this shield. Software
   brightness control requires a transistor/MOSFET hardware modification.
-- Low-cost 2.4-inch shields vary mechanically. Verify enclosure measurements
-  before a long final print.

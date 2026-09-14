@@ -7,7 +7,6 @@
 - BME280 breakout module
 - Four jumper wires
 - USB cable or suitable regulated Uno power supply
-- Optional printed base and clip-on lid from `enclosure/`
 
 ## Detected hardware
 
