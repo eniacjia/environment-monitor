@@ -21,6 +21,14 @@ The installed calibration is specific to the development shield. Run the
 `MCUFRIEND_kbv/TouchScreen_Calibr_native` example, touch every target, and copy
 the resulting pin and calibration constants into the sketch.
 
+## Humidity shows `--%`
+
+- Connect DHT11 data to `A5`, not to the BME280 software-I2C pins.
+- Verify DHT11 power and common ground.
+- A bare four-pin sensor needs a 4.7-10 kOhm pull-up from data to VCC.
+- DHT11 sensors should not be read more frequently than once per second; this
+  firmware reads every ten seconds.
+
 ## Upload reports “programmer is not responding”
 
 - Close Serial Monitor and any application using the COM port.

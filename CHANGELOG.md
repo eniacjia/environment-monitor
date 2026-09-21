@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-21
+
+- Added DHT11 relative-humidity measurement on `A5`.
+- Added a persistent magenta humidity badge to the dashboard.
+- Added a compact built-in DHT11 reader with checksum validation.
+- Updated hardware, user, firmware, and troubleshooting documentation.
+
 ## 2026-09-13
 
 - Added independent eight-hour temperature and pressure charts.

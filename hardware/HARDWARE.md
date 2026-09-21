@@ -5,7 +5,8 @@
 - Arduino Uno or fully compatible ATmega328P board
 - 2.4-inch MCUFRIEND-style TFT LCD shield with resistive touchscreen
 - BME280 breakout module
-- Four jumper wires
+- DHT11 humidity module
+- Seven jumper wires
 - USB cable or suitable regulated Uno power supply
 
 ## Detected hardware
@@ -18,6 +19,7 @@
 | Touch technology | Four-wire, single-touch resistive |
 | Environmental sensor | BME280, chip ID `0x60` |
 | Supported sensor addresses | `0x76` and `0x77` |
+| Humidity sensor | DHT11 on `A5` |
 
 ## BME280 wiring
 
@@ -35,6 +37,17 @@ Leave `CS` and `SDO` unconnected for this configuration. Some breakout boards
 require `CS` pulled high to select I2C mode; use the breakout manufacturer's
 instructions if it is not already pulled up.
 
+## DHT11 wiring
+
+| DHT11 pin | Arduino Uno pin | Notes |
+|---|---|---|
+| `VCC` or `+` | `5V` | Most three-pin DHT11 modules support 3.3-5 V |
+| `DATA`, `S`, or `OUT` | `A5` | Used as digital pin 19 |
+| `GND` or `-` | `GND` | Common ground |
+
+Three-pin modules normally contain the required pull-up resistor. For a bare
+four-pin DHT11, add a 4.7-10 kOhm resistor between `DATA` and `VCC`.
+
 ## TFT and touchscreen pin use
 
 | Pins | Function |
@@ -43,7 +56,7 @@ instructions if it is not already pulled up.
 | `A0-A4` | TFT control; `A2-A3` are shared with touch |
 | `D10-D13` | Normally connected to the microSD slot |
 | `D0-D1` | USB serial and sketch upload |
-| `A5` | Not used by this project |
+| `A5` | DHT11 single-wire data |
 
 Because the sensor uses `D11` and `D13`, do not insert a microSD card while this
 firmware is running.

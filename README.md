@@ -1,9 +1,9 @@
 # DJIA Environmental Monitor
 
 A compact environmental monitor built with an Arduino Uno, a 2.4-inch
-MCUFRIEND TFT touchscreen shield, and a BME280 sensor. The device displays
-temperature and atmospheric pressure as large live readings or as rolling
-one-hour, eight-hour, and 24-hour charts.
+MCUFRIEND TFT touchscreen shield, a BME280 sensor, and a DHT11 humidity module.
+The device displays temperature and atmospheric pressure as large live readings
+or rolling one-hour, eight-hour, and 24-hour charts, with live humidity.
 
 > Local climate at a glance
 
@@ -13,6 +13,7 @@ Built by **DJIA using Codex**. Project build date: **September 11, 2026**.
 
 - 2.4-inch 240 x 320 colour touchscreen
 - BME280 temperature and pressure readings every 10 seconds
+- DHT11 relative-humidity readings every 10 seconds
 - Independent display mode for each measurement:
   - large current value
   - one-hour chart
@@ -22,8 +23,6 @@ Built by **DJIA using Codex**. Project build date: **September 11, 2026**.
 - Touch the centre target to rotate the screen 90 degrees clockwise
 - Portrait and landscape layouts
 - Ten-second branded startup page
-
-Humidity is intentionally not read or displayed.
 
 ## Project contents
 
@@ -42,8 +41,9 @@ Humidity is intentionally not read or displayed.
 2. Keep the shield's microSD slot empty.
 3. Connect BME280 `SDA` to `D11` and `SCL` to `D13`.
 4. Connect BME280 power to `3.3V` and ground to `GND`.
-5. Upload the sketch for an `arduino:avr:uno` target.
-6. After the ten-second startup screen, tap either panel to change its mode.
+5. Connect DHT11 `DATA` to `A5`, power to `5V`, and ground to `GND`.
+6. Upload the sketch for an `arduino:avr:uno` target.
+7. After the ten-second startup screen, tap either panel to change its mode.
 
 See [hardware/HARDWARE.md](hardware/HARDWARE.md) before connecting power.
 

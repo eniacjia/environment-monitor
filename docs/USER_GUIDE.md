@@ -15,7 +15,8 @@ dashboard.
 ## Display sections
 
 The upper section shows **TEMPERATURE** in yellow. The lower section shows
-**PRESSURE** in cyan. Measurements update every ten seconds.
+**PRESSURE** in cyan. A magenta `HUM` badge at the bottom shows the current
+DHT11 relative humidity. Measurements update every ten seconds.
 
 Tap a section to cycle it independently through four modes:
 
@@ -54,3 +55,7 @@ If `BME280 not found` appears, verify:
 - sensor power is connected to `3.3V`
 - grounds are connected
 - the microSD slot is empty
+
+If the humidity badge shows `HUM --%`, verify the DHT11 data wire is connected
+to `A5`, check its power and ground, and confirm that a bare sensor has a data
+pull-up resistor.

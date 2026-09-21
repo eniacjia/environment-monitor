@@ -10,10 +10,12 @@ MCUFRIEND_kbv tft;
 #define YELLOW 0xFFE0
 #define RED 0xF800
 #define GREEN 0x07E0
+#define MAGENTA 0xF81F
 #define DKGREY 0x2104
 
 const uint8_t SDA_PIN = 11;
 const uint8_t SCL_PIN = 13;
+const uint8_t DHT_PIN = A5;
 uint8_t sensorAddress = 0;
 
 const int XP = 8, XM = A2, YP = A3, YM = 9;
@@ -42,7 +44,43 @@ uint8_t displayRotation = 0;
 unsigned long lastReadingMs = 0;
 float currentTemp = 0;
 float currentPressure = 0;
+float currentHumidity = NAN;
 bool sensorFound = false;
+
+bool waitForPinState(uint8_t state, unsigned long timeoutUs) {
+  unsigned long started = micros();
+  while (digitalRead(DHT_PIN) != state) {
+    if (micros() - started > timeoutUs) return false;
+  }
+  return true;
+}
+
+bool readDHT11(float &humidity) {
+  uint8_t data[5] = {0, 0, 0, 0, 0};
+  pinMode(DHT_PIN, OUTPUT);
+  digitalWrite(DHT_PIN, LOW);
+  delay(20);
+  digitalWrite(DHT_PIN, HIGH);
+  delayMicroseconds(30);
+  pinMode(DHT_PIN, INPUT_PULLUP);
+
+  if (!waitForPinState(LOW, 120) || !waitForPinState(HIGH, 120) ||
+      !waitForPinState(LOW, 120)) {
+    return false;
+  }
+  for (uint8_t bit = 0; bit < 40; bit++) {
+    if (!waitForPinState(HIGH, 100)) return false;
+    unsigned long highStarted = micros();
+    if (!waitForPinState(LOW, 120)) return false;
+    data[bit / 8] <<= 1;
+    if (micros() - highStarted > 40) data[bit / 8] |= 1;
+  }
+
+  uint8_t checksum = data[0] + data[1] + data[2] + data[3];
+  if (checksum != data[4]) return false;
+  humidity = data[0] + data[1] * 0.1F;
+  return humidity >= 0.0F && humidity <= 100.0F;
+}
 
 void lineLow(uint8_t pin) { pinMode(pin, OUTPUT); digitalWrite(pin, LOW); }
 void lineHigh(uint8_t pin) { pinMode(pin, INPUT_PULLUP); }
@@ -236,7 +274,7 @@ void drawPanel(uint8_t panel, const __FlashStringHelper *title, float current,
     tft.drawLine(previousX, previousY, x, y, color);
     previousX = x; previousY = y;
   }
-  tft.fillCircle(previousX, previousY, 2, color);
+  tft.fillRect(previousX - 1, previousY - 1, 3, 3, color);
 
   tft.setTextSize(1); tft.setTextColor(WHITE);
   tft.setCursor(chartLeft + 2, chartTop + 2); tft.print(high / 10.0F, 1);
@@ -258,17 +296,28 @@ void drawCurrentPanel(uint8_t panel, const __FlashStringHelper *title,
   tft.setCursor(tft.width() - (panel == 0 ? 30 : 48), top + 12);
   tft.print(unit);
 
-  char valueText[12];
-  dtostrf(current, 0, 1, valueText);
-  int16_t boundsX, boundsY;
-  uint16_t boundsW, boundsH;
   tft.setTextSize(textSize);
-  tft.getTextBounds(valueText, 0, 0, &boundsX, &boundsY, &boundsW, &boundsH);
-  int16_t valueX = (tft.width() - boundsW) / 2;
-  int16_t valueY = top + 42 + (halfHeight - 42 - boundsH) / 2;
+  uint8_t characters = current >= 1000.0F ? 6 :
+                       (current >= 100.0F ? 5 : (current >= 10.0F ? 4 : 3));
+  if (current < 0.0F) characters++;
+  int16_t valueX = (tft.width() - characters * 6 * textSize) / 2;
+  int16_t valueY = top + 42 + (halfHeight - 42 - 8 * textSize) / 2;
   tft.setTextColor(color);
-  tft.setCursor(valueX, valueY); tft.print(valueText);
-  tft.setCursor(valueX + 1, valueY); tft.print(valueText);
+  tft.setCursor(valueX, valueY); tft.print(current, 1);
+  tft.setCursor(valueX + 1, valueY); tft.print(current, 1);
+}
+
+void drawHumidityBadge() {
+  int16_t badgeWidth = 78;
+  int16_t x = (tft.width() - badgeWidth) / 2;
+  int16_t y = tft.height() - 18;
+  tft.fillRect(x, y, badgeWidth, 17, BLACK);
+  tft.drawRect(x, y, badgeWidth, 17, MAGENTA);
+  tft.setTextSize(1); tft.setTextColor(MAGENTA); tft.setCursor(x + 6, y + 5);
+  tft.print(F("HUM "));
+  if (isnan(currentHumidity)) tft.print(F("--"));
+  else tft.print(currentHumidity, 0);
+  tft.print(F("%"));
 }
 
 void drawDashboard() {
@@ -292,9 +341,10 @@ void drawDashboard() {
 
   int16_t centerX = tft.width() / 2;
   int16_t centerY = tft.height() / 2;
-  tft.fillCircle(centerX, centerY, 8, BLACK);
+  tft.fillRect(centerX - 8, centerY - 8, 17, 17, BLACK);
   tft.drawCircle(centerX, centerY, 7, WHITE);
   tft.drawCircle(centerX, centerY, 4, WHITE);
+  drawHumidityBadge();
 }
 
 void showStartupPage() {
@@ -353,6 +403,7 @@ void setup() {
     showError();
     return;
   }
+  readDHT11(currentHumidity);
   pushPair(temp1h, pressure1h, count1h,
            currentTemp * 10.0F, currentPressure * 10.0F);
   pushPair(temp8h, pressure8h, count8h,
@@ -385,6 +436,7 @@ void loop() {
       lastReadingMs = millis();
       sensorFound = beginBMP280();
       if (sensorFound && readBMP280(currentTemp, currentPressure)) {
+        readDHT11(currentHumidity);
         pushPair(temp1h, pressure1h, count1h,
                  currentTemp * 10.0F, currentPressure * 10.0F);
         pushPair(temp8h, pressure8h, count8h,
@@ -401,6 +453,7 @@ void loop() {
     if (!readBMP280(currentTemp, currentPressure)) {
       sensorFound = false; showError(); return;
     }
+    readDHT11(currentHumidity);
     collectHistory(currentTemp, currentPressure);
     drawDashboard();
   }
