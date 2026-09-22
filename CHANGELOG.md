@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-09-21 — startup layout
+
+- Centred the Environmental Monitor title.
+- Enlarged and centred the tagline, automatic build number, and attribution.
+
 ## 2026-09-21 — three-section UI
 
 - Replaced the humidity badge with a dedicated light-green humidity section.

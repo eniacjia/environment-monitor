@@ -24,7 +24,8 @@ automatically from the latest firmware compilation date.
 - Touch the centre target to rotate the screen 90 degrees clockwise
 - Portrait and landscape layouts
 - Three-section dashboard: temperature, pressure, and humidity
-- Ten-second branded startup page
+- Ten-second branded startup page with large, centred title, tagline, build
+  number, and attribution
 
 ## Project contents
 

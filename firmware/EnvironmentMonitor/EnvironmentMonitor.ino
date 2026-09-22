@@ -365,15 +365,20 @@ void showStartupPage() {
   tft.fillScreen(BLACK);
   tft.drawRect(8, 12, 224, 296, DKGREY);
   tft.setTextColor(YELLOW); tft.setTextSize(2);
-  tft.setCursor(18, 72); tft.print(F("ENVIRONMENTAL"));
-  tft.setCursor(70, 100); tft.print(F("MONITOR"));
-  tft.drawFastHLine(30, 135, 180, CYAN);
-  tft.setTextColor(WHITE); tft.setTextSize(1);
-  tft.setCursor(45, 158); tft.print(F("Local climate at a glance"));
-  tft.setTextColor(CYAN);
-  tft.setCursor(72, 214); printBuildNumber();
-  tft.setTextColor(WHITE);
-  tft.setCursor(47, 250); tft.print(F("Built by DJIA using Codex"));
+  tft.setCursor(42, 45); tft.print(F("ENVIRONMENTAL"));
+  tft.setCursor(78, 72); tft.print(F("MONITOR"));
+  tft.drawFastHLine(30, 102, 180, CYAN);
+
+  tft.setTextColor(WHITE); tft.setTextSize(2);
+  tft.setCursor(42, 122); tft.print(F("Local climate"));
+  tft.setCursor(54, 148); tft.print(F("at a glance"));
+
+  tft.setTextColor(CYAN); tft.setTextSize(2);
+  tft.setCursor(30, 190); printBuildNumber();
+
+  tft.setTextColor(WHITE); tft.setTextSize(2);
+  tft.setCursor(42, 232); tft.print(F("Built by DJIA"));
+  tft.setCursor(54, 258); tft.print(F("using Codex"));
   delay(10000);
 }
 

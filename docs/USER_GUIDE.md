@@ -9,6 +9,8 @@ After power-on or reset, the display shows the startup page for ten seconds:
 - `BUILD# YYYYMMDD`, generated automatically from the firmware compile date
 - Built by DJIA using Codex
 
+All startup text uses a large, centred layout for easier reading.
+
 The monitor then detects the BME280 at address `0x76` or `0x77` and opens the
 dashboard.
 
