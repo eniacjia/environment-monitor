@@ -6,7 +6,7 @@ After power-on or reset, the display shows the startup page for ten seconds:
 
 - Environmental Monitor
 - Local climate at a glance
-- Build: Sep 11 2026
+- `BUILD# YYYYMMDD`, generated automatically from the firmware compile date
 - Built by DJIA using Codex
 
 The monitor then detects the BME280 at address `0x76` or `0x77` and opens the
@@ -14,9 +14,14 @@ dashboard.
 
 ## Display sections
 
-The upper section shows **TEMPERATURE** in yellow. The lower section shows
-**PRESSURE** in cyan. A magenta `HUM` badge at the bottom shows the current
-DHT11 relative humidity. Measurements update every ten seconds.
+The screen is divided into three equal sections:
+
+1. **TEMPERATURE** in yellow
+2. **PRESSURE** in cyan
+3. **HUMIDITY** in light green
+
+Measurements update every ten seconds. Temperature and pressure retain their
+four selectable modes. Humidity displays its current value in large type.
 
 Tap a section to cycle it independently through four modes:
 
@@ -56,6 +61,6 @@ If `BME280 not found` appears, verify:
 - grounds are connected
 - the microSD slot is empty
 
-If the humidity badge shows `HUM --%`, verify the DHT11 data wire is connected
+If the humidity section shows `--`, verify the DHT11 data wire is connected
 to `A5`, check its power and ground, and confirm that a bare sensor has a data
 pull-up resistor.

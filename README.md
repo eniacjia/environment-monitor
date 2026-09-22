@@ -7,7 +7,8 @@ or rolling one-hour, eight-hour, and 24-hour charts, with live humidity.
 
 > Local climate at a glance
 
-Built by **DJIA using Codex**. Project build date: **September 11, 2026**.
+Built by **DJIA using Codex**. The startup page generates `BUILD# YYYYMMDD`
+automatically from the latest firmware compilation date.
 
 ## Features
 
@@ -22,6 +23,7 @@ Built by **DJIA using Codex**. Project build date: **September 11, 2026**.
 - Automatic vertical chart scaling
 - Touch the centre target to rotate the screen 90 degrees clockwise
 - Portrait and landscape layouts
+- Three-section dashboard: temperature, pressure, and humidity
 - Ten-second branded startup page
 
 ## Project contents
@@ -43,7 +45,7 @@ Built by **DJIA using Codex**. Project build date: **September 11, 2026**.
 4. Connect BME280 power to `3.3V` and ground to `GND`.
 5. Connect DHT11 `DATA` to `A5`, power to `5V`, and ground to `GND`.
 6. Upload the sketch for an `arduino:avr:uno` target.
-7. After the ten-second startup screen, tap either panel to change its mode.
+7. After startup, tap the temperature or pressure section to change its mode.
 
 See [hardware/HARDWARE.md](hardware/HARDWARE.md) before connecting power.
 

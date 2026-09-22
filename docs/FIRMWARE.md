@@ -41,7 +41,9 @@ Change `COM13` if the Uno appears on another port.
   from ten-second measurements.
 - `drawPanel()` renders dynamically scaled history charts.
 - `drawCurrentPanel()` renders centred, overprinted bold-style current values.
-- `drawHumidityBadge()` keeps the latest humidity visible in every mode.
+- `drawCurrentPanel()` also renders the dedicated light-green humidity section.
+- `printBuildNumber()` converts the compiler-provided `__DATE__` value into the
+  startup identifier `BUILD# YYYYMMDD` on every compile.
 - `readTouch()` maps the measured resistive panel calibration for all four
   display rotations.
 

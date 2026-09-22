@@ -1,9 +1,15 @@
 # Changelog
 
+## 2026-09-21 — three-section UI
+
+- Replaced the humidity badge with a dedicated light-green humidity section.
+- Split the adaptive dashboard into temperature, pressure, and humidity thirds.
+- Made the startup build identifier compile automatically as `BUILD# YYYYMMDD`.
+
 ## 2026-09-21
 
 - Added DHT11 relative-humidity measurement on `A5`.
-- Added a persistent magenta humidity badge to the dashboard.
+- Added live DHT11 humidity display to the dashboard.
 - Added a compact built-in DHT11 reader with checksum validation.
 - Updated hardware, user, firmware, and troubleshooting documentation.
 

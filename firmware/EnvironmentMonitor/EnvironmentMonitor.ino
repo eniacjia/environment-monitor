@@ -10,7 +10,7 @@ MCUFRIEND_kbv tft;
 #define YELLOW 0xFFE0
 #define RED 0xF800
 #define GREEN 0x07E0
-#define MAGENTA 0xF81F
+#define LIGHTGREEN 0x87F0
 #define DKGREY 0x2104
 
 const uint8_t SDA_PIN = 11;
@@ -229,17 +229,18 @@ void drawPanel(uint8_t panel, const __FlashStringHelper *title, float current,
                const __FlashStringHelper *unit, int16_t *history, uint16_t color,
                int16_t minimumSpan, uint8_t count,
                const __FlashStringHelper *rangeLabel) {
-  int16_t halfHeight = tft.height() / 2;
-  int16_t top = panel * halfHeight;
-  int16_t chartTop = top + 42;
-  int16_t chartBottom = top + halfHeight - 9;
+  int16_t sectionHeight = tft.height() / 3;
+  int16_t top = panel * sectionHeight;
+  if (panel == 2) sectionHeight = tft.height() - top;
+  int16_t chartTop = top + 30;
+  int16_t chartBottom = top + sectionHeight - 7;
   int16_t chartLeft = 8;
   int16_t chartRight = tft.width() - 8;
-  tft.fillRect(0, top, tft.width(), halfHeight, BLACK);
-  tft.drawRect(0, top, tft.width(), halfHeight, WHITE);
-  tft.setTextSize(1); tft.setTextColor(WHITE); tft.setCursor(8, top + 15);
+  tft.fillRect(0, top, tft.width(), sectionHeight, BLACK);
+  tft.drawRect(0, top, tft.width(), sectionHeight, WHITE);
+  tft.setTextSize(1); tft.setTextColor(WHITE); tft.setCursor(8, top + 11);
   tft.print(title);
-  tft.setTextSize(2); tft.setTextColor(color); tft.setCursor(92, top + 9);
+  tft.setTextSize(1); tft.setTextColor(color); tft.setCursor(92, top + 11);
   tft.print(current, 1); tft.print(unit);
 
   for (uint8_t i = 0; i <= 4; i++) {
@@ -286,38 +287,31 @@ void drawPanel(uint8_t panel, const __FlashStringHelper *title, float current,
 void drawCurrentPanel(uint8_t panel, const __FlashStringHelper *title,
                       float current, const __FlashStringHelper *unit,
                       uint16_t color, uint8_t textSize) {
-  int16_t halfHeight = tft.height() / 2;
-  int16_t top = panel * halfHeight;
-  tft.fillRect(0, top, tft.width(), halfHeight, BLACK);
-  tft.drawRect(0, top, tft.width(), halfHeight, WHITE);
+  int16_t sectionHeight = tft.height() / 3;
+  int16_t top = panel * sectionHeight;
+  if (panel == 2) sectionHeight = tft.height() - top;
+  tft.fillRect(0, top, tft.width(), sectionHeight, BLACK);
+  tft.drawRect(0, top, tft.width(), sectionHeight, WHITE);
   tft.setTextColor(WHITE); tft.setTextSize(2);
   tft.setCursor(8, top + 12); tft.print(title);
   tft.setTextColor(color); tft.setTextSize(2);
-  tft.setCursor(tft.width() - (panel == 0 ? 30 : 48), top + 12);
+  tft.setCursor(tft.width() - (panel == 1 ? 48 : 30), top + 12);
   tft.print(unit);
 
+  if (sectionHeight < 100 && textSize > 4) textSize = 4;
+  else if (textSize > 5) textSize = 5;
   tft.setTextSize(textSize);
-  uint8_t characters = current >= 1000.0F ? 6 :
-                       (current >= 100.0F ? 5 : (current >= 10.0F ? 4 : 3));
-  if (current < 0.0F) characters++;
+  bool valid = !isnan(current);
+  uint8_t characters = valid ? (current >= 1000.0F ? 6 :
+                       (current >= 100.0F ? 5 : (current >= 10.0F ? 4 : 3))) : 2;
+  if (valid && current < 0.0F) characters++;
   int16_t valueX = (tft.width() - characters * 6 * textSize) / 2;
-  int16_t valueY = top + 42 + (halfHeight - 42 - 8 * textSize) / 2;
+  int16_t valueY = top + 36 + (sectionHeight - 36 - 8 * textSize) / 2;
   tft.setTextColor(color);
-  tft.setCursor(valueX, valueY); tft.print(current, 1);
-  tft.setCursor(valueX + 1, valueY); tft.print(current, 1);
-}
-
-void drawHumidityBadge() {
-  int16_t badgeWidth = 78;
-  int16_t x = (tft.width() - badgeWidth) / 2;
-  int16_t y = tft.height() - 18;
-  tft.fillRect(x, y, badgeWidth, 17, BLACK);
-  tft.drawRect(x, y, badgeWidth, 17, MAGENTA);
-  tft.setTextSize(1); tft.setTextColor(MAGENTA); tft.setCursor(x + 6, y + 5);
-  tft.print(F("HUM "));
-  if (isnan(currentHumidity)) tft.print(F("--"));
-  else tft.print(currentHumidity, 0);
-  tft.print(F("%"));
+  tft.setCursor(valueX, valueY);
+  if (valid) tft.print(current, 1); else tft.print(F("--"));
+  tft.setCursor(valueX + 1, valueY);
+  if (valid) tft.print(current, 1); else tft.print(F("--"));
 }
 
 void drawDashboard() {
@@ -339,12 +333,32 @@ void drawDashboard() {
               pressureMode == 1 ? count1h : (pressureMode == 2 ? count8h : count24h),
               pressureMode == 1 ? F("1 HOUR") : (pressureMode == 2 ? F("8 HOUR") : F("24 HOUR")));
 
+  drawCurrentPanel(2, F("HUMIDITY"), currentHumidity, F("%"), LIGHTGREEN, 5);
+
   int16_t centerX = tft.width() / 2;
   int16_t centerY = tft.height() / 2;
   tft.fillRect(centerX - 8, centerY - 8, 17, 17, BLACK);
   tft.drawCircle(centerX, centerY, 7, WHITE);
   tft.drawCircle(centerX, centerY, 4, WHITE);
-  drawHumidityBadge();
+}
+
+void printBuildNumber() {
+  static const char months[] PROGMEM = "JanFebMarAprMayJunJulAugSepOctNovDec";
+  uint8_t month = 1;
+  for (uint8_t i = 0; i < 12; i++) {
+    if (pgm_read_byte(months + i * 3) == __DATE__[0] &&
+        pgm_read_byte(months + i * 3 + 1) == __DATE__[1] &&
+        pgm_read_byte(months + i * 3 + 2) == __DATE__[2]) {
+      month = i + 1;
+      break;
+    }
+  }
+  tft.print(F("BUILD# "));
+  tft.print(__DATE__ + 7);
+  if (month < 10) tft.print('0');
+  tft.print(month);
+  tft.write(__DATE__[4] == ' ' ? '0' : __DATE__[4]);
+  tft.write(__DATE__[5]);
 }
 
 void showStartupPage() {
@@ -357,7 +371,7 @@ void showStartupPage() {
   tft.setTextColor(WHITE); tft.setTextSize(1);
   tft.setCursor(45, 158); tft.print(F("Local climate at a glance"));
   tft.setTextColor(CYAN);
-  tft.setCursor(70, 214); tft.print(F("Build: Sep 11 2026"));
+  tft.setCursor(72, 214); printBuildNumber();
   tft.setTextColor(WHITE);
   tft.setCursor(47, 250); tft.print(F("Built by DJIA using Codex"));
   delay(10000);
@@ -425,8 +439,11 @@ void loop() {
       displayRotation = (displayRotation + 1) % 4;
       tft.setRotation(displayRotation);
       tft.fillScreen(BLACK);
-    } else if (touchY < centerY) tempMode = (tempMode + 1) % 4;
-    else pressureMode = (pressureMode + 1) % 4;
+    } else {
+      int16_t sectionHeight = tft.height() / 3;
+      if (touchY < sectionHeight) tempMode = (tempMode + 1) % 4;
+      else if (touchY < sectionHeight * 2) pressureMode = (pressureMode + 1) % 4;
+    }
     drawDashboard();
   }
   touchWasDown = touchDown;
