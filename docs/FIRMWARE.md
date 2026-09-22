@@ -37,8 +37,10 @@ Change `COM13` if the Uno appears on another port.
 - `readDHT11()` performs the timed single-wire transaction, validates its
   checksum, and reports relative humidity.
 - Software I2C uses open-drain-style pin switching on `D11/D13`.
-- `collectHistory()` creates one-minute, eight-minute, and 24-minute averages
-  from ten-second measurements.
+- `collectHistory()` creates temperature and pressure averages, while
+  `collectHumidityHistory()` creates equivalent DHT11 humidity averages. Each
+  produces one-minute, eight-minute, and 24-minute history points from
+  ten-second measurements.
 - `drawPanel()` renders dynamically scaled history charts.
 - `drawCurrentPanel()` renders centred, overprinted bold-style current values.
 - `drawCurrentPanel()` also renders the dedicated light-green humidity section.
@@ -49,10 +51,10 @@ Change `COM13` if the Uno appears on another port.
 
 ## RAM strategy
 
-The Uno has only 2 KB of SRAM. Six arrays of 60 signed 16-bit values retain
-temperature and pressure data for the one-hour, eight-hour, and 24-hour views.
-Values are stored in tenths of their displayed units. This avoids storing
-thousands of individual ten-second samples.
+The Uno has only 2 KB of SRAM. Nine arrays of 60 signed 16-bit values retain
+temperature, pressure, and humidity data for the one-hour, eight-hour, and
+24-hour views. Values are stored in tenths of their displayed units. This
+avoids storing thousands of individual ten-second samples.
 
 ## Persistence status
 

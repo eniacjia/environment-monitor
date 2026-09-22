@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-21 — humidity history
+
+- Added independent 1-hour, 8-hour, and 24-hour humidity charts.
+- Added four-mode touch cycling to the humidity section.
+- Added minute, eight-minute, and 24-minute DHT11 averaging buffers.
+
 ## 2026-09-21 — startup layout
 
 - Centred the Environmental Monitor title.

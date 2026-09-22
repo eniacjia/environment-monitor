@@ -33,13 +33,18 @@ const uint8_t HISTORY_SIZE = 60;
 int16_t temp1h[HISTORY_SIZE], pressure1h[HISTORY_SIZE];
 int16_t temp8h[HISTORY_SIZE], pressure8h[HISTORY_SIZE];
 int16_t temp24h[HISTORY_SIZE], pressure24h[HISTORY_SIZE];
+int16_t humidity1h[HISTORY_SIZE], humidity8h[HISTORY_SIZE];
+int16_t humidity24h[HISTORY_SIZE];
 uint8_t count1h = 0, count8h = 0, count24h = 0;
+uint8_t humidityCount1h = 0, humidityCount8h = 0, humidityCount24h = 0;
 uint8_t samples1h = 0, samples8h = 0, samples24h = 0;
+uint8_t humiditySamples1h = 0, humiditySamples8h = 0, humiditySamples24h = 0;
 int32_t tempSum1h = 0, pressureSum1h = 0;
 int32_t tempSum8h = 0, pressureSum8h = 0;
 int32_t tempSum24h = 0, pressureSum24h = 0;
+int32_t humiditySum1h = 0, humiditySum8h = 0, humiditySum24h = 0;
 // Display modes: 0=current, 1=one hour, 2=eight hours, 3=24 hours.
-uint8_t tempMode = 0, pressureMode = 0;
+uint8_t tempMode = 0, pressureMode = 0, humidityMode = 0;
 uint8_t displayRotation = 0;
 unsigned long lastReadingMs = 0;
 float currentTemp = 0;
@@ -202,6 +207,14 @@ void pushPair(int16_t *temperatures, int16_t *pressures, uint8_t &count,
   }
 }
 
+void pushSingle(int16_t *values, uint8_t &count, int16_t value) {
+  if (count < HISTORY_SIZE) values[count++] = value;
+  else {
+    memmove(values, values + 1, (HISTORY_SIZE - 1) * sizeof(int16_t));
+    values[HISTORY_SIZE - 1] = value;
+  }
+}
+
 void collectHistory(float temperature, float pressure) {
   int16_t t = (int16_t)(temperature * 10.0F);
   int16_t p = (int16_t)(pressure * 10.0F);
@@ -222,6 +235,25 @@ void collectHistory(float temperature, float pressure) {
     pushPair(temp24h, pressure24h, count24h,
              tempSum24h / samples24h, pressureSum24h / samples24h);
     tempSum24h = pressureSum24h = 0; samples24h = 0;
+  }
+}
+
+void collectHumidityHistory(float humidity) {
+  int16_t h = (int16_t)(humidity * 10.0F);
+  humiditySum1h += h; humiditySamples1h++;
+  humiditySum8h += h; humiditySamples8h++;
+  humiditySum24h += h; humiditySamples24h++;
+  if (humiditySamples1h == 6) {
+    pushSingle(humidity1h, humidityCount1h, humiditySum1h / humiditySamples1h);
+    humiditySum1h = 0; humiditySamples1h = 0;
+  }
+  if (humiditySamples8h == 48) {
+    pushSingle(humidity8h, humidityCount8h, humiditySum8h / humiditySamples8h);
+    humiditySum8h = 0; humiditySamples8h = 0;
+  }
+  if (humiditySamples24h == 144) {
+    pushSingle(humidity24h, humidityCount24h, humiditySum24h / humiditySamples24h);
+    humiditySum24h = 0; humiditySamples24h = 0;
   }
 }
 
@@ -333,7 +365,16 @@ void drawDashboard() {
               pressureMode == 1 ? count1h : (pressureMode == 2 ? count8h : count24h),
               pressureMode == 1 ? F("1 HOUR") : (pressureMode == 2 ? F("8 HOUR") : F("24 HOUR")));
 
-  drawCurrentPanel(2, F("HUMIDITY"), currentHumidity, F("%"), LIGHTGREEN, 5);
+  if (humidityMode == 0)
+    drawCurrentPanel(2, F("HUMIDITY"), currentHumidity, F("%"), LIGHTGREEN, 5);
+  else
+    drawPanel(2, F("HUMIDITY"), currentHumidity, F("%"),
+              humidityMode == 1 ? humidity1h : (humidityMode == 2 ? humidity8h : humidity24h),
+              LIGHTGREEN, 100,
+              humidityMode == 1 ? humidityCount1h :
+                (humidityMode == 2 ? humidityCount8h : humidityCount24h),
+              humidityMode == 1 ? F("1 HOUR") :
+                (humidityMode == 2 ? F("8 HOUR") : F("24 HOUR")));
 
   int16_t centerX = tft.width() / 2;
   int16_t centerY = tft.height() / 2;
@@ -422,7 +463,12 @@ void setup() {
     showError();
     return;
   }
-  readDHT11(currentHumidity);
+  if (readDHT11(currentHumidity)) {
+    int16_t initialHumidity = currentHumidity * 10.0F;
+    pushSingle(humidity1h, humidityCount1h, initialHumidity);
+    pushSingle(humidity8h, humidityCount8h, initialHumidity);
+    pushSingle(humidity24h, humidityCount24h, initialHumidity);
+  }
   pushPair(temp1h, pressure1h, count1h,
            currentTemp * 10.0F, currentPressure * 10.0F);
   pushPair(temp8h, pressure8h, count8h,
@@ -448,6 +494,7 @@ void loop() {
       int16_t sectionHeight = tft.height() / 3;
       if (touchY < sectionHeight) tempMode = (tempMode + 1) % 4;
       else if (touchY < sectionHeight * 2) pressureMode = (pressureMode + 1) % 4;
+      else humidityMode = (humidityMode + 1) % 4;
     }
     drawDashboard();
   }
@@ -458,7 +505,12 @@ void loop() {
       lastReadingMs = millis();
       sensorFound = beginBMP280();
       if (sensorFound && readBMP280(currentTemp, currentPressure)) {
-        readDHT11(currentHumidity);
+        if (readDHT11(currentHumidity)) {
+          int16_t initialHumidity = currentHumidity * 10.0F;
+          pushSingle(humidity1h, humidityCount1h, initialHumidity);
+          pushSingle(humidity8h, humidityCount8h, initialHumidity);
+          pushSingle(humidity24h, humidityCount24h, initialHumidity);
+        }
         pushPair(temp1h, pressure1h, count1h,
                  currentTemp * 10.0F, currentPressure * 10.0F);
         pushPair(temp8h, pressure8h, count8h,
@@ -475,7 +527,7 @@ void loop() {
     if (!readBMP280(currentTemp, currentPressure)) {
       sensorFound = false; showError(); return;
     }
-    readDHT11(currentHumidity);
+    if (readDHT11(currentHumidity)) collectHumidityHistory(currentHumidity);
     collectHistory(currentTemp, currentPressure);
     drawDashboard();
   }

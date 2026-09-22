@@ -22,10 +22,10 @@ The screen is divided into three equal sections:
 2. **PRESSURE** in cyan
 3. **HUMIDITY** in light green
 
-Measurements update every ten seconds. Temperature and pressure retain their
-four selectable modes. Humidity displays its current value in large type.
+Measurements update every ten seconds. Each of the three sections has four
+independent selectable modes: current value, 1 hour, 8 hours, and 24 hours.
 
-Tap a section to cycle it independently through four modes:
+Tap any section to cycle it independently through four modes:
 
 1. Large, centred current value
 2. Rolling one-hour chart

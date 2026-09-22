@@ -15,7 +15,7 @@ automatically from the latest firmware compilation date.
 - 2.4-inch 240 x 320 colour touchscreen
 - BME280 temperature and pressure readings every 10 seconds
 - DHT11 relative-humidity readings every 10 seconds
-- Independent display mode for each measurement:
+- Independent display mode for temperature, pressure, and humidity:
   - large current value
   - one-hour chart
   - eight-hour chart
@@ -46,7 +46,7 @@ automatically from the latest firmware compilation date.
 4. Connect BME280 power to `3.3V` and ground to `GND`.
 5. Connect DHT11 `DATA` to `A5`, power to `5V`, and ground to `GND`.
 6. Upload the sketch for an `arduino:avr:uno` target.
-7. After startup, tap the temperature or pressure section to change its mode.
+7. After startup, tap any measurement section to change its mode.
 
 See [hardware/HARDWARE.md](hardware/HARDWARE.md) before connecting power.
 
